@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { purgeAllData } from "../services/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen({ navigation }) {
+  useEffect(() => {
+    // Executa uma limpeza única dos dados para iniciar "sem dados"
+    // Mantém o comportamento do app; apenas garante base vazia uma vez.
+    (async () => {
+      try {
+        const flag = await AsyncStorage.getItem("purged_v1");
+        if (!flag) {
+          await purgeAllData();
+          await AsyncStorage.setItem("purged_v1", "1");
+        }
+      } catch {}
+    })();
+  }, []);
   async function handleSignOut() {
     await signOut(auth);
     navigation.replace("Login");

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { Headline, Paragraph, Card } from "react-native-paper";
+import { View, StyleSheet, Text } from "react-native";
+import { Card } from "react-native-paper";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -58,16 +58,18 @@ export default function SummaryScreen() {
 
   return (
     <View style={styles.container}>
-      <Headline>Resumo Diário</Headline>
+      <Text style={styles.title}>Resumo Diário</Text>
       <Card style={styles.card}>
-        <Card.Content>
-          <Paragraph>Quantidade de saídas hoje: {count}</Paragraph>
-        </Card.Content>
+        <View style={styles.boxInner}>
+          <Text style={styles.label}>Quantidade de saídas hoje:</Text>
+          <Text style={styles.value}>{count}</Text>
+        </View>
       </Card>
       <Card style={styles.card}>
-        <Card.Content>
-          <Paragraph>Valor total cobrado: R$ {total.toFixed(2)}</Paragraph>
-        </Card.Content>
+        <View style={styles.boxInner}>
+          <Text style={styles.label}>Valor total cobrado:</Text>
+          <Text style={styles.value}>R$ {total.toFixed(2)}</Text>
+        </View>
       </Card>
     </View>
   );
@@ -75,5 +77,9 @@ export default function SummaryScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
+  title: { fontSize: 20, fontWeight: "700" },
   card: { marginTop: 12 },
+  boxInner: { padding: 16 },
+  label: { fontSize: 14, color: "#444" },
+  value: { fontSize: 16, fontWeight: "600", marginTop: 4 },
 });

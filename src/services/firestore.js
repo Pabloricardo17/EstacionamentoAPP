@@ -12,6 +12,8 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  writeBatch,
+  deleteDoc,
 } from "firebase/firestore";
 
 // Funções para gerenciar entradas de veículos
@@ -192,4 +194,29 @@ export async function getDailySummary(date) {
   const summaryRef = doc(db, "dailySummaries", date);
   const summaryDoc = await getDoc(summaryRef);
   return summaryDoc.exists() ? summaryDoc.data() : { date, total: 0, count: 0 };
+}
+
+// Utilitário: limpa todos os dados de saídas (payments), registros (entries)
+// e resumos diários (dailySummaries). Mantém a configuração de tarifa (rates).
+export async function purgeAllData() {
+  const collectionsToClear = ["payments", "entries", "dailySummaries"];
+
+  for (const colName of collectionsToClear) {
+    const colRef = collection(db, colName);
+    const snap = await getDocs(colRef);
+    if (snap.empty) continue;
+
+    // Deleta em lotes para respeitar limite de 500 operações por batch
+    let batch = writeBatch(db);
+    let count = 0;
+    for (const d of snap.docs) {
+      batch.delete(doc(db, colName, d.id));
+      count++;
+      if (count % 450 === 0) {
+        await batch.commit();
+        batch = writeBatch(db);
+      }
+    }
+    await batch.commit();
+  }
 }

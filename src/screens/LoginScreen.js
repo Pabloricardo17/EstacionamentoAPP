@@ -5,7 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import {
   signInWithEmailAndPassword,
@@ -143,81 +146,112 @@ export default function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../../assets/estacionamento-fundatec.png")}
-        style={styles.logo}
-      />
-      <Text style={styles.title}>Entrar</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Senha"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-        autoCapitalize="none"
-      />
-      {info ? <Text style={styles.infoText}>{info}</Text> : null}
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
-      </TouchableOpacity>
+    <ImageBackground
+      source={require("../../assets/estacionamento-fundatec.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.formCard}>
+              <Text style={styles.title}>Entrar</Text>
+              <TextInput
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <TextInput
+                placeholder="Senha"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                style={styles.input}
+                autoCapitalize="none"
+              />
+              {info ? <Text style={styles.infoText}>{info}</Text> : null}
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Entrar</Text>
+              </TouchableOpacity>
 
-      {/* Links lado a lado */}
-      <View style={styles.linksRow}>
-        <TouchableOpacity
-          style={styles.linkLeft}
-          onPress={() => navigation.navigate("ResetPassword")}
-        >
-          <Text style={styles.linkButtonText}>Esqueci minha senha</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.linkRight}
-          onPress={() => navigation.navigate("Register")}
-        >
-          <Text style={styles.linkButtonText}>Criar conta</Text>
-        </TouchableOpacity>
+              {/* Links lado a lado */}
+              <View style={styles.linksRow}>
+                <TouchableOpacity
+                  style={styles.linkLeft}
+                  onPress={() => navigation.navigate("ResetPassword")}
+                >
+                  <Text style={styles.linkButtonText}>Esqueci minha senha</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.linkRight}
+                  onPress={() => navigation.navigate("Register")}
+                >
+                  <Text style={styles.linkButtonText}>Criar conta</Text>
+                </TouchableOpacity>
+              </View>
+
+              {pendingVerification ? (
+                <View style={styles.verifyBox}>
+                  <Text style={styles.verifyText}>
+                    Após clicar no link do e-mail, toque em "Já confirmei".
+                  </Text>
+                  <View style={styles.verifyActions}>
+                    <TouchableOpacity
+                      style={styles.outlineBtn}
+                      onPress={handleResendVerification}
+                    >
+                      <Text style={styles.outlineBtnText}>
+                        Reenviar verificação
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.secondaryBtn}
+                      onPress={handleCheckVerified}
+                    >
+                      <Text style={styles.secondaryBtnText}>Já confirmei</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : null}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
-
-      {pendingVerification ? (
-        <View style={styles.verifyBox}>
-          <Text style={styles.verifyText}>
-            Após clicar no link do e-mail, toque em "Já confirmei".
-          </Text>
-          <View style={styles.verifyActions}>
-            <TouchableOpacity
-              style={styles.outlineBtn}
-              onPress={handleResendVerification}
-            >
-              <Text style={styles.outlineBtnText}>Reenviar verificação</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.secondaryBtn}
-              onPress={handleCheckVerified}
-            >
-              <Text style={styles.secondaryBtnText}>Já confirmei</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: { flex: 1 },
+  overlay: {
     flex: 1,
-    padding: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
-    backgroundColor: "#fff",
+  },
+  formCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
   title: {
     fontSize: 24,
@@ -260,7 +294,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
-  logo: { width: 120, height: 120, alignSelf: "center", marginBottom: 12 },
   linksRow: {
     flexDirection: "row",
     justifyContent: "space-between",
